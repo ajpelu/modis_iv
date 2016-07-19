@@ -1,14 +1,16 @@
 # General settings to dowload data 
 
 library(MODISTools)
-library(mailR)
+
 library(stringr)
 library(dplyr)
 library(reshape2)
+library(mailR) # To send infor 
+library(tictoc) # Clock time 
 
 
-## Time-comsuption
-start.time <- Sys.time()
+# Start time 
+tic() 
 
 ## Create dir to store MODIS original 
 path_original_MODIS <- file.path(di, "data_raw/modis")
@@ -26,7 +28,10 @@ modis_bands <- c("250m_16_days_NDVI",
              "250m_16_days_composite_day_of_the_year")
 
 
-                                            
+# Read coordinates data 
+
+
+
 # Format the data of sites 
 mydf <- data.frame(ID=c(142799,142801),
                    lat=c(37.1964115002029, 37.1964115002029),
@@ -36,7 +41,7 @@ mydf$start.date <- rep(2000, nrow(mydf))
 mydf$end.date <- rep(2001, nrow(mydf))
 
 
-# Call to download the subsets 
+# Download the info for the coordinate supplies 
 MODISSubsets(LoadDat=mydf, 
              Product=vi_product, 
              Bands=modis_bands,
@@ -44,79 +49,21 @@ MODISSubsets(LoadDat=mydf,
              SaveDir = path_original_MODIS,
              StartDate = TRUE) 
 
+tic()
 
-
-
-
-ndvi <- MODISTimeSeries(Dir = path_original_MODIS, 
-                  Band = "250m_16_days_NDVI", 
-                  Simplify = FALSE) 
-
-
-
-
-
-
- 
-
-
-# ID of pixels and coordinates 
-## Extract coordinates 
-miname <- colnames(ndvi[[1]]) 
-### Remove "Samp1Line1_pixel1" 
-aux_miname <- str_replace(miname, pattern = "\\Samp..*", "")
-aux_miname
-
-### milat 
-aux_miname_lat <- str_replace(aux_miname, pattern = "\\Lon..*", "")
-milat <- as.numeric(
-  unlist(stringr::str_split(aux_miname_lat, "Lat", n=2))[2])
-
-### milong 
-milong <- as.numeric(unlist(stringr::str_split(aux_miname, "Lon", n=2))[2])
-
-### Coordinates
-mis_coord <- as.data.frame(cbind(milat, milong))
-
-# Get id of pixel 
-myid <- mis_coord %>% 
-  inner_join(mydf, by= c('milat' = 'lat', 'milong' = 'long'))
-
-
-# Change name "Lat37.1964115002029Lon-3.2653977048134Samp1Line1_pixel1" for 
-# pixel ID
-colnames(ndvi[[1]]) <- myid$ID
-
-
-aux_data <- ndvi[[1]] %>% 
-  melt() %>% 
-  select(modis_date = Var1,
-         id_pixel = Var2,
-         ndvi = value)
-  
-
-
-
-
-
-% modis_bands[i]
-% 
-
-
-# 
-aux_data_out <- c() 
-aux_data_2 <- c() 
-
-
+# Loop for process the data 
 for (i in modis_bands){ 
   
   ### Get name of the band 
-  name_band <- tolower(str_replace(modis_bands[i], pattern = "250m_16_days_", ""))
+  name_band <- tolower(str_replace(i, pattern = "250m_16_days_", ""))
   
   ### Create a MODIS_Temporal_Series
   mimodis_ts <- MODISTimeSeries(Dir = path_original_MODIS, 
                   Band = i, 
                   Simplify = FALSE) 
+  
+  # Create a empty data.frame
+  aux_data_out <- c() 
   
     for (j in 1:length(mimodis_ts)) { 
       
@@ -145,8 +92,8 @@ for (i in modis_bands){
       
       aux_data <- mimodis_ts[[j]] %>% 
         melt() %>% 
-        select(modis_date = Var1,
-               id_pixel = Var2,
+        select('modis_date' = Var1,
+               'id_pixel' = Var2,
                name_band = value)
       
       aux_data_out <- rbind(aux_data_out, aux_data)
@@ -154,35 +101,40 @@ for (i in modis_bands){
     }
   
   names(aux_data_out)[3] <- name_band
+  assign(name_band, aux_data_out)
   
-  ##
-  aux_data_2 <- cbind(aux_data_2, aux_data_out) 
   } 
   
+
+# Merge dataframes 
+iv_df <- ndvi %>% 
+  inner_join(evi, by=c("modis_date", "id_pixel")) %>% 
+  inner_join(pixel_reliability, by=c("modis_date", "id_pixel")) %>% 
+  inner_join(vi_quality, by=c("modis_date", "id_pixel")) %>% 
+  inner_join(composite_day_of_the_year, by=c("modis_date", "id_pixel")) 
   
 
+head(iv_df)
 
+# Function from Verbesselt et. al 2016 (Remote Sensing for Ecologist)
+doy2date <- function(year, doy){ 
+  as.Date(doy - 1, origin = paste0(year, "-01-01"))}  
   
   
-  
-  # Change name "Lat37.1964115002029Lon-3.2653977048134Samp1Line1_pixel1" for 
-  # pixel ID
-  colnames(ndvi[[1]]) <- myid$ID
-  
-  
-  aux_data <- ndvi[[1]] %>% 
-    melt() %>% 
-    select(modis_date = Var1,
-           id_pixel = Var2,
-           ndvi = value)
-  
-  
-  
-  }
+# Get year from modis_date and stored as variable 
+iv_df$year <- str_sub(iv_df$modis_date, start = 2, end = -4)
 
-modis_bands[1]
+iv_df$date <- doy2date(iv_df$year, iv_df$composite_day_of_the_year)
+# See Testa et al. 2014 http://server-geolab.agr.unifi.it/public/completed/2014_EuJRS_47_285_305_Testa.pdf
 
 
+
+
+ 
+# Stop the clock!! and save as variable 
+exectime <- toc()
+exectime <- exectime$toc - exectime$tic
+  
 
 
 
@@ -206,8 +158,7 @@ modis_bands[1]
 #                QualityBand = "250m_16_days_pixel_reliability", QualityThreshold = 1)
 
 
-ndvi <- as.data.frame(ndvi)
-ndvi$jday_raw <- row.names(ndvi)
+
 
 
 
@@ -307,6 +258,37 @@ MODISGrid(Dir = path_original_MODIS,
           
           
 
-colnames(ndvi)
 
-library()
+# ID of pixels and coordinates 
+## Extract coordinates 
+miname <- colnames(ndvi[[1]]) 
+### Remove "Samp1Line1_pixel1" 
+aux_miname <- str_replace(miname, pattern = "\\Samp..*", "")
+aux_miname
+
+### milat 
+aux_miname_lat <- str_replace(aux_miname, pattern = "\\Lon..*", "")
+milat <- as.numeric(
+  unlist(stringr::str_split(aux_miname_lat, "Lat", n=2))[2])
+
+### milong 
+milong <- as.numeric(unlist(stringr::str_split(aux_miname, "Lon", n=2))[2])
+
+### Coordinates
+mis_coord <- as.data.frame(cbind(milat, milong))
+
+# Get id of pixel 
+myid <- mis_coord %>% 
+  inner_join(mydf, by= c('milat' = 'lat', 'milong' = 'long'))
+
+
+# Change name "Lat37.1964115002029Lon-3.2653977048134Samp1Line1_pixel1" for 
+# pixel ID
+colnames(ndvi[[1]]) <- myid$ID
+
+
+aux_data <- ndvi[[1]] %>% 
+  melt() %>% 
+  select(modis_date = Var1,
+         id_pixel = Var2,
+         ndvi = value)

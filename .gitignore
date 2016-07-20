@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# modis original
+/data_raw/modis/

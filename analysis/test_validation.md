@@ -17,7 +17,7 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 ``` r
 library("dplyr")
 library("lubridate")
-library("printr")
+library("printr") # To install see https://github.com/yihui/printr
 ```
 
 ``` r

@@ -46,7 +46,7 @@ Get all the data for a pixel (e.g. `142799`) in a year (e.g. `2000`)
 
 ```{r}
 myid <- 142799 
-myyear <- 2001 
+myyear <- 2010 
 ```
 
 ```{r}
@@ -54,11 +54,13 @@ obsnev %>%
   filter(iv_malla_modi_id == myid) %>%
   filter(
     year(ymd(fecha)) == myyear) %>% 
-  arrange(composite_day_year)
+  arrange(composite_day_year) %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi)
 
 md %>%
   filter(id_pixel == myid) %>%
-  filter(year %in% myyear)
+  filter(year %in% myyear) %>% 
+  select(id_pixel, date, composite_day_of_the_year, evi, ndvi)
 ```
 
 

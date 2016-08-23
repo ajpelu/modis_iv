@@ -22,6 +22,7 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 ```{r packages, warning=FALSE, message=FALSE}
 library("dplyr")
 library("lubridate")
+library("printr")
 ```
 
 ```{r, readData}

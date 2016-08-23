@@ -1,0 +1,68 @@
+---
+title: "Test Validation of MODIS data"
+author: "AJ Perez-Luque (@ajpelu)"
+date: "2016 August"
+output:  
+  md_document:
+    variant: markdown_github
+---
+
+# Test Validation 
+Test for validation for the downloaded data using [`MODISTool` R package](https://cran.r-project.org/web/packages/MODISTools/index.html) and data coming from [Sierra Nevada Global Change Observatory](https://obsnev.es) 
+
+## Prepare data 
+```{r wd}
+#---------------------------------
+machine <- 'ajpelu'
+# machine <- 'ajpeluLap'
+di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
+#---------------------------------
+```
+
+```{r packages, warning=FALSE, message=FALSE}
+library("dplyr")
+library("lubridate")
+```
+
+```{r, readData}
+## obsnev_data 
+obsnev <- read.csv(file=paste0(di,"/data/iv_obsnev.csv"), header=TRUE, sep=",")
+
+## Downloade data with MODISTool 
+md <- read.csv(file=paste0(di,"/data/iv_raw_2015.csv"), header=TRUE, sep=",")
+```
+
+## Exploring data 
+```{r}
+head(obsnev)
+```
+
+```{r}
+head(md)
+```
+
+## Test 
+Get all the data for a pixel (e.g. `142799`) in a year (e.g. `2000`)
+
+```{r}
+myid <- 142799 
+myyear <- 2001 
+```
+
+```{r}
+obsnev %>% 
+  filter(iv_malla_modi_id == myid) %>%
+  filter(
+    year(ymd(fecha)) == myyear) %>% 
+  arrange(composite_day_year)
+
+md %>%
+  filter(id_pixel == myid) %>%
+  filter(year %in% myyear)
+```
+
+
+
+
+
+

@@ -23,6 +23,8 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 library("dplyr")
 library("lubridate")
 library("printr") # To install see https://github.com/yihui/printr
+library("ggplot2")
+library("ggthemes")
 ```
 
 ```{r, readData}
@@ -67,5 +69,35 @@ md %>%
 
 
 
+```{r}
+
+myids <- sample(md$id_pixel, 3)
+
+aux_md <- md %>%
+  filter(id_pixel %in% myids) %>%
+  mutate(composite_day_year = composite_day_of_the_year,
+         iv_malla_modi_id = id_pixel,
+         fecha = date,
+         dataset = 'MTr_package') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux_obsnev <- obsnev %>% 
+  filter(iv_malla_modi_id %in% myids) %>%
+  mutate(dataset = 'obsnev') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux <- rbind(aux_md, aux_obsnev)
+
+
+ggplot(aux, aes(as.Date(fecha), y=ndvi*0.0001, colour=dataset)) +
+  geom_line(size=1.1) + 
+  xlab('date') + ylab('ndvi') + 
+  facet_wrap(~iv_malla_modi_id, ncol=1) +
+  theme_few() + scale_colour_fivethirtyeight() 
+
+
+
+
+```
 
 

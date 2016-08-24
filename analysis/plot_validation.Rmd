@@ -1,0 +1,94 @@
+---
+title: "Comparison downloaded data from obsnev with MODISTool R-package"
+output: 
+  flexdashboard::flex_dashboard:
+  orientation: columns 
+runtime: shiny
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+library(flexdashboard)
+library("dplyr")
+library("lubridate")
+library("ggplot2")
+library("ggthemes")
+library("plotly")
+
+
+machine <- 'ajpelu'
+# machine <- 'ajpeluLap'
+di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
+
+
+## obsnev_data 
+obsnev <- read.csv(file=paste0(di,"/data/iv_obsnev.csv"), header=TRUE, sep=",")
+
+## Downloade data with MODISTool 
+md <- read.csv(file=paste0(di,"/data/iv_raw_2015.csv"), header=TRUE, sep=",")
+
+
+aux_md <- md %>%
+  mutate(composite_day_year = composite_day_of_the_year,
+         iv_malla_modi_id = id_pixel, 
+         fecha = as.Date(date), 
+         ndvi = ndvi*0.0001,
+         evi = evi*0.0001, 
+         dataset = 'MTr_package') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux_obsnev <- obsnev %>% 
+  mutate(fecha = as.Date(fecha), 
+         ndvi = ndvi*0.0001,
+         evi = evi*0.0001,
+         dataset = 'obsnev') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux_df <- rbind(aux_obsnev, aux_md)
+
+set.seed(1)
+
+
+```
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+selectInput("cualPixel", label= h3("Choose a pixel"),
+            aux_df$iv_malla_modi_id, selected = 142799) 
+
+```
+
+
+Row
+-----------------------------------------------------------------------
+
+### NDVI 
+
+```{r}
+mydf <- reactive({
+  aux_df[aux_df$iv_malla_modi_id == as.integer(input$cualPixel), ]
+})
+
+renderPlotly({
+p <- ggplot(mydf(), aes(fecha, y=ndvi, colour=dataset)) +
+  geom_line() + 
+  xlab('date') + ylab('ndvi') + 
+  theme_few() + scale_colour_fivethirtyeight() 
+  
+ggplotly(p)
+})
+```
+
+### EVI
+```{r}
+renderPlotly({
+p <- ggplot(mydf(), aes(fecha, y=evi, colour=dataset)) +
+  geom_line() + 
+  xlab('date') + ylab('evi') + 
+  theme_few() + scale_colour_fivethirtyeight() 
+  
+ggplotly(p)
+})
+```
+

@@ -18,6 +18,8 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 library("dplyr")
 library("lubridate")
 library("printr") # To install see https://github.com/yihui/printr
+library("ggplot2")
+library("ggthemes")
 ```
 
 ``` r
@@ -134,3 +136,65 @@ md %>%
 |     142799| 2010-11-19 |                            323|  2184|  6189|
 |     142799| 2010-12-12 |                            346|  1477|  4742|
 |     142799| 2010-12-29 |                            363|  1655|  6771|
+
+Exploring temporal series of both datasets
+------------------------------------------
+
+``` r
+## Exploring two temporal series 
+# Preparing data 
+
+aux_md <- md %>%
+  mutate(composite_day_year = composite_day_of_the_year,
+         iv_malla_modi_id = id_pixel, 
+         fecha = as.Date(date), 
+         ndvi = ndvi*0.0001,
+         evi = evi*0.0001, 
+         dataset = 'MTr_package') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux_obsnev <- obsnev %>% 
+  mutate(fecha = as.Date(fecha), 
+         ndvi = ndvi*0.0001,
+         evi = evi*0.0001,
+         dataset = 'obsnev') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux_df <- rbind(aux_obsnev, aux_md) %>%
+  mutate(fecha=as.Date(fecha))
+
+
+# Export aux dataframe
+write.csv(aux_df, file=paste(di, "/data/aux_comparison.csv", sep=""), row.names = FALSE)
+# ---
+```
+
+See this [shinyapp](https://ajpelu.shinyapps.io/plot_validation/) (Note: Be patient!!) with interactive plots to compare the both dataset for EVI and NDVI variables. You can also see an example (three pixels) below:
+
+``` r
+myids <- sample(md$id_pixel, 3)
+
+aux_md <- md %>%
+  filter(id_pixel %in% myids) %>%
+  mutate(composite_day_year = composite_day_of_the_year,
+         iv_malla_modi_id = id_pixel,
+         fecha = date,
+         dataset = 'MTr_package') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux_obsnev <- obsnev %>% 
+  filter(iv_malla_modi_id %in% myids) %>%
+  mutate(dataset = 'obsnev') %>% 
+  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
+
+aux <- rbind(aux_md, aux_obsnev)
+
+
+ggplot(aux, aes(as.Date(fecha), y=ndvi*0.0001, colour=dataset)) +
+  geom_line(size=1.1) + 
+  xlab('date') + ylab('ndvi') + 
+  facet_wrap(~iv_malla_modi_id, ncol=1) +
+  theme_few() + scale_colour_fivethirtyeight() 
+```
+
+![](test_validation_files/figure-markdown_github/unnamed-chunk-6-1.png)

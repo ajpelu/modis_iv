@@ -67,9 +67,9 @@ md %>%
 ```
 
 
+## Exploring temporal series of both datasets
 
-
-```{r}
+```{r, eval=FALSE}
 ## Exploring two temporal series 
 # Preparing data 
 
@@ -98,6 +98,8 @@ write.csv(aux_df, file=paste(di, "/data/aux_comparison.csv", sep=""), row.names 
 # ---
 ```
 
+See this [shinyapp](https://ajpelu.shinyapps.io/plot_validation/) (Note: Be patient!!) with interactive plots to compare the both dataset for EVI and NDVI variables. You can also see an example (three pixels) below: 
+
 ```{r}
 myids <- sample(md$id_pixel, 3)
 
@@ -122,14 +124,6 @@ ggplot(aux, aes(as.Date(fecha), y=ndvi*0.0001, colour=dataset)) +
   xlab('date') + ylab('ndvi') + 
   facet_wrap(~iv_malla_modi_id, ncol=1) +
   theme_few() + scale_colour_fivethirtyeight() 
-
-
-
-
-
-
-
-
 ```
 
 

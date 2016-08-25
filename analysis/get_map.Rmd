@@ -23,8 +23,7 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 library("rgdal")
 library("sp")
 library("raster")
-library("leafletR")
-library("leafletR")
+library("leaflet")
 library("dplyr")
 
 
@@ -63,7 +62,8 @@ aux_spatial <- spTransform(iv_sp, CRS("+init=epsg:23030"))
 aux_rast <- raster(aux_spatial, resolution=250)
 
 # Rasterize 
-my_raster <- rasterize(aux_spatial, aux_rast, "poblacion", mean)
+my_raster <- rasterize(aux_spatial, aux_rast, "iv_malla_modi_id", mean)
+names(my_raster) <- "iv_malla_modi_id" 
  
 # reproject 
 r<- projectRaster(my_raster, crs=crs("+init=epsg:4326"))
@@ -71,18 +71,38 @@ plot(r)
 
 # Raster to polygon 
 qp <- rasterToPolygons(r)
+
+qp <- sp::merge(x=qp, y=iv, by="iv_malla_modi_id")
+
+
 ```
 
 
 ```{r}
-m <- leaflet() %>% 
-  addTiles() %>% 
-  addPolygons(data = qp)
-print(m)
+leaflet() %>% 
+  addTiles(urlTemplate = "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png") %>%
+  addPolygons(data = qp, fillColor = qp@data$layer)
+              
+              
+              popup = paste0("Id Pixel: ", as.character(wrs2$PATH_ROW)), group = "Landsat scenes")
+#   addProviderTiles("Esri.WorldTopoMap")
 
+
+
+  print(m)
+
+
+
+  addTiles() %>% 
 leaflet(neStates) %>%
   addPolygons(
     stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5,
     color = ~colorQuantile("YlOrRd", states$AWATER)(AWATER)
   )
 
+
+
+// https: also suppported.
+var Esri_WorldTopoMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+});

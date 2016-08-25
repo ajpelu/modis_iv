@@ -1,5 +1,5 @@
 ---
-title: "Comparison downloaded data from obsnev with MODISTool R-package"
+title: "Comparison of Vegetation Indices data from obsnev with MODISTool R-package"
 output: 
   flexdashboard::flex_dashboard:
   orientation: columns 
@@ -7,46 +7,17 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-library(flexdashboard)
+library("flexdashboard")
 library("dplyr")
 library("lubridate")
 library("ggplot2")
 library("ggthemes")
 library("plotly")
+require("RCurl")
 
-
-machine <- 'ajpelu'
-# machine <- 'ajpeluLap'
-di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
-
-
-## obsnev_data 
-obsnev <- read.csv(file=paste0(di,"/data/iv_obsnev.csv"), header=TRUE, sep=",")
-
-## Downloade data with MODISTool 
-md <- read.csv(file=paste0(di,"/data/iv_raw_2015.csv"), header=TRUE, sep=",")
-
-
-aux_md <- md %>%
-  mutate(composite_day_year = composite_day_of_the_year,
-         iv_malla_modi_id = id_pixel, 
-         fecha = as.Date(date), 
-         ndvi = ndvi*0.0001,
-         evi = evi*0.0001, 
-         dataset = 'MTr_package') %>% 
-  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
-
-aux_obsnev <- obsnev %>% 
-  mutate(fecha = as.Date(fecha), 
-         ndvi = ndvi*0.0001,
-         evi = evi*0.0001,
-         dataset = 'obsnev') %>% 
-  select(iv_malla_modi_id, fecha, composite_day_year, evi, ndvi, dataset)
-
-aux_df <- rbind(aux_obsnev, aux_md)
-
-set.seed(1)
-
+# Read data 
+aux_df <-read.csv(text=getURL("https://raw.githubusercontent.com/ajpelu/modis_iv/master/data/aux_comparison.csv"), header=T)
+aux_df$fecha <- as.Date(aux_df$fecha)
 
 ```
 
@@ -55,7 +26,7 @@ Inputs {.sidebar}
 
 ```{r}
 selectInput("cualPixel", label= h3("Choose a pixel"),
-            aux_df$iv_malla_modi_id, selected = 142799) 
+            aux_df$iv_malla_modi_id, selected = NULL) 
 
 ```
 

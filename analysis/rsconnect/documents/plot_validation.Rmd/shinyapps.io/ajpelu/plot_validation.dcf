@@ -2,8 +2,8 @@ name: plot_validation
 account: ajpelu
 server: shinyapps.io
 appId: 121822
-bundleId: 539666
+bundleId: 540460
 url: https://ajpelu.shinyapps.io/plot_validation/
-when: 1472040696.19029
+when: 1472107740.66008
 asMultiple: FALSE
 asStatic: FALSE

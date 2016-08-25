@@ -169,7 +169,7 @@ write.csv(aux_df, file=paste(di, "/data/aux_comparison.csv", sep=""), row.names 
 # ---
 ```
 
-See this [shinyapp](https://ajpelu.shinyapps.io/plot_validation/) (Note: Be patient!!) with interactive plots to compare the both dataset for EVI and NDVI variables. You can also see an example (three pixels) below:
+See this [shinyapp](https://ajpelu.shinyapps.io/plot_validation/) with interactive plots to compare the both dataset for EVI and NDVI variables. You can also see an example (three pixels) below:
 
 ``` r
 myids <- sample(md$id_pixel, 3)

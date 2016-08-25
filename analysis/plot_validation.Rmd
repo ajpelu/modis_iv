@@ -1,8 +1,11 @@
 ---
-title: "Comparison of Vegetation Indices data from obsnev with MODISTool R-package"
+title: "Comparison of Vegetation Indices data"
 output: 
   flexdashboard::flex_dashboard:
-  orientation: columns 
+    orientation: columns 
+    theme: yeti
+    social: ["twitter"]
+    source_code: embed
 runtime: shiny
 ---
 
@@ -25,10 +28,43 @@ Inputs {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
+
+set.seed(5)
+
+# Select the size of the sample 
+selectInput("sampleSize", label = h3("Sample Size"),
+            choices = list("5" = 5,
+                           "10" = 10,
+                           "20" = 20,
+                           "30" = 30,
+                           "40" = 40,
+                           "50" = 50),
+            selected = 10)
+
+
+
+# Select the pixel to show the plots   
+renderUI(
 selectInput("cualPixel", label= h3("Choose a pixel"),
-            aux_df$iv_malla_modi_id, selected = NULL) 
+            sample(aux_df$iv_malla_modi_id, size = input$sampleSize), 
+            selected = NULL) 
+) 
+  
 
 ```
+
+
+This shiny app compares data from MOD13Q1A MODIS product coming from two sources:
+
+* Using the [MODISTool-R package](https://cran.r-project.org/web/packages/MODISTools/index.html) and 
+* Using a customized workflow (from [Sierra Nevada Global Change Observatory](http://obsnev.es))
+
+The Vegetation indices are obtanied for the pixels covering the *Quercus pyrenaica* forests of Sierra Nevada (Spain) (*n=1814*). 
+
+A sample of the pixels is done (select the sample size, from 5 to 50) for faster the processing. Then the ids of the pixels are shown and you can pick one to compare both datasets. Two plots are displayed at rigth showing the values of the NDVI (Normalized Difference Vegetation Index) and EVI (Enhanced Vegetation Index). 
+
+
+
 
 
 Row

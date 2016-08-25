@@ -88,10 +88,10 @@ leaflet() %>%
 #   addProviderTiles("Esri.WorldTopoMap")
 
 
-
-  print(m)
-
-
+# # SEE some urls: 
+# http://amsantac.co/blog/en/r/2015/08/11/leaflet-R.html
+# http://spatialrecology.org/posts/leafletmapping.html
+# https://rstudio.github.io/leaflet/basemaps.html
 
   addTiles() %>% 
 leaflet(neStates) %>%

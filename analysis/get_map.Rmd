@@ -1,0 +1,88 @@
+---
+title: "Display map of pixels"
+author: "AJ Perez-Luque (@ajpelu)"
+date: "2016 August"
+output:  
+  md_document:
+    variant: markdown_github
+---
+
+# Test Validation 
+Test for validation for the downloaded data using [`MODISTool` R package](https://cran.r-project.org/web/packages/MODISTools/index.html) and data coming from [Sierra Nevada Global Change Observatory](https://obsnev.es) 
+
+## Prepare data 
+```{r wd}
+#---------------------------------
+machine <- 'ajpelu'
+# machine <- 'ajpeluLap'
+di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
+#---------------------------------
+```
+
+```{r packages, warning=FALSE, message=FALSE}
+library("rgdal")
+library("sp")
+library("raster")
+library("leafletR")
+library("leafletR")
+library("dplyr")
+
+
+# library("lubridate")
+# library("printr") # To install see https://github.com/yihui/printr
+# library("ggplot2")
+# library("ggthemes")
+# 
+# 
+# 
+# library("raster")
+# library("rasterVis")
+# source(paste0(di,"/R/exportpdf.R")) # function to export raster levelplots maps as pdf
+# library("dplyr")
+# library("ggplot2")
+# library("reshape2")
+# library("purrr")
+# # library("pander")
+# library("knitr")
+
+```
+
+```{r, readData}
+# Prepare spatial data 
+iv <- read.csv(file=paste0(di,"/data_raw/coord_qpyr.csv"), header=TRUE, sep=",")
+
+
+# Create a spatial dataframe 
+iv_sp <- SpatialPointsDataFrame(coords = iv[,c('lng','lat')], data = iv,
+                               proj4string = CRS("+init=epsg:4326"))
+
+# Transform 
+aux_spatial <- spTransform(iv_sp, CRS("+init=epsg:23030"))
+
+# raster auxiliar 
+aux_rast <- raster(aux_spatial, resolution=250)
+
+# Rasterize 
+my_raster <- rasterize(aux_spatial, aux_rast, "poblacion", mean)
+ 
+# reproject 
+r<- projectRaster(my_raster, crs=crs("+init=epsg:4326"))
+plot(r)
+
+# Raster to polygon 
+qp <- rasterToPolygons(r)
+```
+
+
+```{r}
+m <- leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = qp)
+print(m)
+
+leaflet(neStates) %>%
+  addPolygons(
+    stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5,
+    color = ~colorQuantile("YlOrRd", states$AWATER)(AWATER)
+  )
+

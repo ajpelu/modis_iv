@@ -2,16 +2,11 @@
 title: "Display map of pixels"
 author: "AJ Perez-Luque (@ajpelu)"
 date: "2016 August"
-output:  
-  md_document:
-    variant: html
+output: html_document
 ---
 
-# Test Validation 
-Test for validation for the downloaded data using [`MODISTool` R package](https://cran.r-project.org/web/packages/MODISTools/index.html) and data coming from [Sierra Nevada Global Change Observatory](https://obsnev.es) 
 
-## Prepare data 
-```{r wd}
+```{r wd, echo=FALSE}
 #---------------------------------
 machine <- 'ajpelu'
 # machine <- 'ajpeluLap'
@@ -19,34 +14,15 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 #---------------------------------
 ```
 
-```{r packages, warning=FALSE, message=FALSE}
+```{r packages, warning=FALSE, message=FALSE, echo=FALSE}
 library("rgdal")
 library("sp")
 library("raster")
 library("leaflet")
 library("dplyr")
-
-
-# library("lubridate")
-# library("printr") # To install see https://github.com/yihui/printr
-# library("ggplot2")
-# library("ggthemes")
-# 
-# 
-# 
-# library("raster")
-# library("rasterVis")
-# source(paste0(di,"/R/exportpdf.R")) # function to export raster levelplots maps as pdf
-# library("dplyr")
-# library("ggplot2")
-# library("reshape2")
-# library("purrr")
-# # library("pander")
-# library("knitr")
-
 ```
 
-```{r, readData}
+```{r, readData, echo=FALSE}
 # Polygonine. SEE this tutorial http://neondataskills.org/working-with-field-data/Field-Data-Polygons-From-Centroids 
 
 # Prepare spatial data 
@@ -110,7 +86,7 @@ aux_polys <- spTransform(polys.df, CRS("+init=epsg:4326"))
 ```
 
 
-```{r}
+```{r, echo=FALSE}
 # Map the polygons 
 m <- leaflet() %>% 
   addWMSTiles('http://www.ideandalucia.es/services/toporaster10/wms?',

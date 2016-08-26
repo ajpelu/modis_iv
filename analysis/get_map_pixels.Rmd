@@ -1,17 +1,21 @@
 ---
 title: "Map of MODIS MOD13Q1A pixels over Q. pyrenaica forests in Sierra Nevada"
 output: 
-  flexdashboard::flex_dashboard
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
 ---
 
 ```{r setup, include=FALSE}
 library('flexdashboard')
 ```
 
+Column 
+-----------------------------------------------------------------------
+
 ### Map
 
-
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
+```{r}
 library("rgdal")
 library("sp")
 library("raster")
@@ -19,7 +23,7 @@ library("leaflet")
 library("dplyr")
 ```
 
-```{r, readData, echo=FALSE}
+```{r}
 # Polygonize. SEE this tutorial http://neondataskills.org/working-with-field-data/Field-Data-Polygons-From-Centroids 
 
 # Prepare spatial data 
@@ -105,7 +109,7 @@ setwd(wd)
 ```
 
 
-```{r, echo=FALSE}
+```{r}
 popup_qp <- paste0("<strong>Population id:</strong> ", qp_rep$POBLACION,
                    "<br><strong>Name:</strong> ", qp_rep$LOCALIDAD,
                    "<br><strong>Valley:</strong> ", qp_rep$VALLE)

@@ -1,5 +1,5 @@
 ---
-title: "Distribution of the MODIS MOD13Q1A pixels over Quercus pyrenaica forests in Sierra Nevada "
+title: "Distribution of the MODIS MOD13Q1A pixels over Quercus pyrenaica forests in Sierra Nevada"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -140,7 +140,7 @@ m <- leaflet() %>%
               group='Pixel MODIS') %>% 
   addPolygons(data = qp_rep, 
               group= 'Quercus pyrenaica forests', 
-              fillColor = 'black', stroke = FALSE,
+              fillColor = 'red', fillOpacity = 0.4, stroke = FALSE,
               popup = popup_qp)
               
 m

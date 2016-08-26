@@ -1,0 +1,38 @@
+---
+title: "Create Dataset with coordinates and IV data"
+author: "AJ Perez-Luque (@ajpelu)"
+date: "2016 August"
+output:  
+  md_document:
+    variant: markdown_github
+---
+
+```{r wd}
+#---------------------------------
+# machine <- 'ajpelu'
+machine <- 'ajpeluLap'
+di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
+#---------------------------------
+```
+
+```{r packages, warning=FALSE, message=FALSE}
+library("dplyr")
+library("lubridate")
+```
+
+```{r, readData}
+#iv data
+iv_raw <- read.csv(file=paste0(di,"/data/iv_raw_2015.csv"), header=TRUE, sep=",")
+# spatial info
+iv_coord <- read.csv(file=paste0(di,"/data_raw/coord_qpyr.csv"), header=TRUE, sep=",")
+```
+
+```{r}
+iv <- iv_raw %>% 
+  mutate(iv_malla_modi_id = id_pixel) %>% 
+  inner_join(iv_coord, by='iv_malla_modi_id') %>% 
+  select(iv_malla_modi_id, ndvi, evi, composite_day_of_the_year, date, lng, lat, poblacion)
+
+write.csv(iv, file = paste0(di,'/data/iv_quercus_pyrenaica.csv'), row.names = FALSE)
+```
+

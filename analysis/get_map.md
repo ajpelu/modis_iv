@@ -1,17 +1,12 @@
----
-title: "Display map of pixels"
-author: "AJ Perez-Luque (@ajpelu)"
-date: "2016 August"
-output:  
-  md_document:
-    variant: markdown_github
----
+Test Validation
+===============
 
-# Test Validation 
-Test for validation for the downloaded data using [`MODISTool` R package](https://cran.r-project.org/web/packages/MODISTools/index.html) and data coming from [Sierra Nevada Global Change Observatory](https://obsnev.es) 
+Test for validation for the downloaded data using [`MODISTool` R package](https://cran.r-project.org/web/packages/MODISTools/index.html) and data coming from [Sierra Nevada Global Change Observatory](https://obsnev.es)
 
-## Prepare data 
-```{r wd}
+Prepare data
+------------
+
+``` r
 #---------------------------------
 machine <- 'ajpelu'
 # machine <- 'ajpeluLap'
@@ -19,7 +14,7 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 #---------------------------------
 ```
 
-```{r packages, warning=FALSE, message=FALSE}
+``` r
 library("rgdal")
 library("sp")
 library("raster")
@@ -43,10 +38,9 @@ library("dplyr")
 # library("purrr")
 # # library("pander")
 # library("knitr")
-
 ```
 
-```{r, readData}
+``` r
 # Polygonine. SEE this tutorial http://neondataskills.org/working-with-field-data/Field-Data-Polygons-From-Centroids 
 
 # Prepare spatial data 
@@ -106,11 +100,9 @@ polys.df <- SpatialPolygonsDataFrame(polys, data.frame(id=ID, row.names=ID))
 
 # Reproject 
 aux_polys <- spTransform(polys.df, CRS("+init=epsg:4326"))
-
 ```
 
-
-```{r}
+``` r
 # Map the polygons 
 m <- leaflet() %>% 
   addWMSTiles('http://www.ideandalucia.es/services/toporaster10/wms?',
@@ -142,35 +134,4 @@ print(m)
 # http://amsantac.co/blog/en/r/2015/08/11/leaflet-R.html
 # http://spatialrecology.org/posts/leafletmapping.html
 # https://rstudio.github.io/leaflet/basemaps.html
-
-```
-
-
-
-```{r, eval=FALSE, echo=FALSE}
-
-# Create a spatial dataframe 
-iv_sp <- SpatialPointsDataFrame(coords = iv[,c('lng','lat')], data = iv,
-                               proj4string = CRS("+init=epsg:4326"))
-
-# Transform 
-aux_spatial <- spTransform(iv_sp, CRS("+init=epsg:23030"))
-
-# raster auxiliar 
-aux_rast <- raster(aux_spatial, resolution=230)
-
-# Rasterize 
-my_raster <- rasterize(aux_spatial, aux_rast, "poblacion")
-names(my_raster) <- "poblacion" 
- 
-# reproject 
-r<- projectRaster(my_raster, crs=crs("+init=epsg:4326"))
-plot(r)
-
-# Raster to polygon 
-qp <- rasterToPolygons(r)
-
-qp <- sp::merge(x=qp, y=iv, by="iv_malla_modi_id")
-
-x <- length(!is.na(r))
 ```

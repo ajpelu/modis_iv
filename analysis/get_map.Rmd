@@ -4,7 +4,7 @@ author: "AJ Perez-Luque (@ajpelu)"
 date: "2016 August"
 output:  
   md_document:
-    variant: markdown_github
+    variant: html
 ---
 
 # Test Validation 
@@ -135,7 +135,7 @@ m <- leaflet() %>%
               popup=paste0("<strong>iv_malla_modi_id: </strong>", aux_polys$id), 
               group='Pixel MODIS')
               
-print(m)
+m
 
 
 # # SEE some urls: 

@@ -6,7 +6,7 @@ Get MODIS Data for *Q. pyrenaica* forests in Sierra Nevada (Spain)
 # Rationale 
 Code to download and process MOD13Q1 product of NASA's MODIS (MODerate-resolution Imaging Spectroradiometer) for the pixels covering the distribution of *Quercus pyrenaica* forests in Sierra Nevada. 
 
-The pixels of the distribution of *Q. pyrenaica* were obtained from [Sierra Nevada Global Change Observatory](linaria.obsnev.es). You can see in the following [link](https://rawgit.com/ajpelu/modis_iv/master/analysis/get_map.html) 
+The pixels of the distribution of *Q. pyrenaica* were obtained from [Sierra Nevada Global Change Observatory](linaria.obsnev.es). You can see in the following [link](https://rawgit.com/ajpelu/modis_iv/master/analysis/get_map_pixels.html) 
 
 
 

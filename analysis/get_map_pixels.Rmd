@@ -1,19 +1,14 @@
 ---
-title: "Distribution of the MODIS MOD13Q1A pixels over Quercus pyrenaica forests in Sierra Nevada"
+title: "Map of MODIS MOD13Q1A pixels over Q. pyrenaica forests in Sierra Nevada"
 output: 
-  flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
+  flexdashboard::flex_dashboard
 ---
 
 ```{r setup, include=FALSE}
 library('flexdashboard')
 ```
 
-Column 
------------------------------------------------------------------------
-
-### Chart A
+### Map
 
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}

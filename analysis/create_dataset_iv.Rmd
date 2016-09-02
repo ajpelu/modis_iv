@@ -5,12 +5,14 @@ date: "2016 August"
 output:  
   md_document:
     variant: markdown_github
+bibliography: references.bib
+csl: ecology.csl
 ---
 
 ```{r wd}
 #---------------------------------
-# machine <- 'ajpelu'
-machine <- 'ajpeluLap'
+machine <- 'ajpelu'
+# machine <- 'ajpeluLap'
 di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 #---------------------------------
 ```
@@ -29,9 +31,18 @@ iv_coord <- read.csv(file=paste0(di,"/data_raw/coord_qpyr.csv"), header=TRUE, se
 
 ```{r}
 iv <- iv_raw %>% 
-  mutate(iv_malla_modi_id = id_pixel) %>% 
+  mutate(iv_malla_modi_id = id_pixel,
+         cdoy = composite_day_of_the_year) %>% 
   inner_join(iv_coord, by='iv_malla_modi_id') %>% 
-  select(iv_malla_modi_id, ndvi, evi, composite_day_of_the_year, date, lng, lat, poblacion)
+  select(iv_malla_modi_id, ndvi, evi, cdoy, date, lng, lat, poblacion)
+
+# Algorith to correct dates
+# Create dataframe with reference data
+refereceData <- as.data.frame(composite=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23),
+                              first_cdoy = c(1, 17, 33, 49, 65, 81, 97, 113,
+                                             129, 145, 161, 177, 193, 209, 225, 241, 257,
+                                             273, 289, 305, 321, 337, 353)
+
 
 write.csv(iv, file = paste0(di,'/data/iv_quercus_pyrenaica.csv'), row.names = FALSE)
 ```

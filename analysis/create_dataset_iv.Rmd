@@ -11,8 +11,8 @@ csl: ecology.csl
 
 ```{r wd}
 #---------------------------------
-machine <- 'ajpelu'
-# machine <- 'ajpeluLap'
+#machine <- 'ajpelu'
+machine <- 'ajpeluLap'
 di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 #---------------------------------
 ```
@@ -41,7 +41,7 @@ iv <- iv_raw %>%
 refereceData <- as.data.frame(composite=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23),
                               first_cdoy = c(1, 17, 33, 49, 65, 81, 97, 113,
                                              129, 145, 161, 177, 193, 209, 225, 241, 257,
-                                             273, 289, 305, 321, 337, 353)
+                                             273, 289, 305, 321, 337, 353))
 
 
 write.csv(iv, file = paste0(di,'/data/iv_quercus_pyrenaica.csv'), row.names = FALSE)

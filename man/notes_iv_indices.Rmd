@@ -1,0 +1,20 @@
+---
+title: "Notes IV indices"
+author: "AJ Perez-Luque (@ajpelu)"
+date: "2016 Aug"
+output:  
+  md_document:
+    toc: true
+    variant: markdown_github
+bibliography: referencias.bib
+csl: ecology.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Some usefuls packages and resources
+* Tim Assal's batch script to download MODIS data [post](http://www.timassal.com/?p=941) 
+* MODISR Tool package 
+

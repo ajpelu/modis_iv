@@ -8,7 +8,8 @@
 
 # --- 
 # Set directory 
-machine <- 'ajpelu'
+# machine <- 'ajpelu'
+machine <- 'ajpeluLap'
 di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 # --- 
 
@@ -19,7 +20,11 @@ di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 library(MODISTools) 
 library(stringr)
 library(dplyr)
+library(tidyr)
 library(reshape2)
+source(file=paste0(di, '/R/getlat.R'))
+source(file=paste0(di, '/R/getlong.R'))
+source(file=paste0(di, '/R/doy2date.R'))
 # ---
 
 
@@ -64,9 +69,9 @@ for (i in 1:length(myfiles)){
     # MODIS.acq.date: Date code for this string of data, year and Julian day (A[YYYYDDD]) 
     # where: Input coordinates and the width (Samp) and height (Line) in number of pixels of the tile surrounding the input coordinate
     # MODIS.proc.date: Date–time that MODIS data product was processed (YYYYDDDHHMMSS)
-    # value: value of the variable. NOTE: It's a modification of See Tuck et al. 2014 doi:10.1002/ece3.1273
+    # mod_value: value of the variable. NOTE: It's a modification of See Tuck et al. 2014 doi:10.1002/ece3.1273
   names(asc_file) <- c("nrow", "ncol", "xll", "yll", "pixelsize", "row.id", "product.code", "MODIS.acq.date",
-                        "where", "MODIS.proc.date", "value")
+                        "where", "MODIS.proc.date", "mod_value")
   
   ##  and select variables 
   aux_file <- asc_file %>% 
@@ -74,28 +79,48 @@ for (i in 1:length(myfiles)){
     mutate(lat = getlat(where), 
            long = getlong(where)) %>% 
     # Change name of MODIS.proc.date (mpd) and MODIS.acq.date (mad)
-    mutate(mpd = MODIS.proc.date, 
-           mad = MODIS.acq.date) %>% 
+    mutate(mpd = MODIS.proc.date,
+           year_adq = as.numeric(stringr::str_sub(MODIS.acq.date, start = 2, end = -4)),
+           jday_adq = as.numeric(stringr::str_sub(MODIS.acq.date, start = 6, end = -1)), 
+           date_adq = doy2date(year=year_adq, doy=jday_adq)) %>%  
     # Variable with pixel id 
-    mutate(iv_malla_modi_id = mypixel_name) %>% 
-    # Get name of the variable
-    # mutate(variable = stringr::str_split_fixed(row.id, ".250m_16_days_", 2)[1]) %>% 
-    separate(row.id, c("row.id_dup", "variable"), ".250m_16_days_", remove = FALSE) %>% 
+    mutate(iv_malla_modi_id = mypixel_name) %>%
+    # Get name of the modis variable
+    separate(row.id, c("row.id_dup", "mod_variable"), ".250m_16_days_", remove = FALSE) %>% 
     # Select variables of interest  
-    select(iv_malla_modi_id, value, mad, mpd, lat, long, row.id, variable) 
+    select(iv_malla_modi_id, lat, long, mod_value, mod_variable, year_adq, jday_adq, date_adq) %>% 
+    dcast(iv_malla_modi_id + lat + long + year_adq + jday_adq + date_adq ~ mod_variable, value.var='mod_value')
+    
+    dcast(eviperiod, iv_malla_modi_id + poblacion + lng + lat  ~ disturb, value.var = 'media_period')
+    
+    d
+    
+  dcast()
+    stocks <- data_frame(
+      time = as.Date('2009-01-01') + 0:9,
+      X = rnorm(10, 0, 1),
+      Y = rnorm(10, 0, 2),
+      Z = rnorm(10, 0, 4)
+    )
+    
+    gather(stocks, stock, price, -time)
+    stocks %>% gather(stock, price, -time)
+    
+    # get first observation for each Species in iris data -- base R
+    mini_iris <- iris[c(1, 51, 101), ]
+    # gather Sepal.Length, Sepal.Width, Petal.Length, Petal.Width
+    gather(mini_iris, key = flower_att, value = measurement,
+           Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)  
+ 
+
+  
+  
 
 
     # Por aqui pendejo !!!! 
     
 
- 
- 
 
-  
-
-  
-
-  
   
   
   

@@ -8,8 +8,8 @@
 
 # --- 
 # Set directory 
-machine <- 'ajpelu'
-# machine <- 'ajpeluLap'
+# machine <- 'ajpelu'
+machine <- 'ajpeluLap'
 di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 # --- 
 
@@ -33,24 +33,13 @@ source(file=paste0(di, '/R/doy2date.R'))
 ## Create dir to store MODIS original 
 path_original_MODIS <- file.path(di, "data_raw/modis/")
 
-## Bands (see https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1)
-modis_bands <- c("250m_16_days_NDVI",
-                 "250m_16_days_EVI",
-                 "250m_16_days_VI_Quality",
-                 "250m_16_days_pixel_reliability",
-                 "250m_16_days_composite_day_of_the_year")
-# --- 
 
+# --- 
 # List all files downloaded (.asc format)
 myfiles <- list.files(path_original_MODIS)
 
-
-
-# asc_file <- read.csv(paste0(di, '/data_raw/modis/',misfiles[1]), header=FALSE, as.is=TRUE)
-
-# Band <- "250m_16_days_NDVI"
-
-aux_data_out <- data.frame()
+# --- 
+iv_df <- data.frame()
   
 for (i in 1:length(myfiles)){ 
   
@@ -94,10 +83,16 @@ for (i in 1:length(myfiles)){
     dcast(iv_malla_modi_id + lat + long + year_adq + jday_adq + date_adq ~ mod_variable, value.var='mod_value')
   
 
-  aux_data_out <- rbind(aux_data_out, aux_file)
+  iv_df <- rbind(iv_df, aux_file)
 } 
  
- 
+
+
+# ---
+# Export evi dataframe
+write.csv(iv_df, file=paste(di, "/data/iv_raw.csv", sep=""), row.names = FALSE)
+# ---
+
 
 
   

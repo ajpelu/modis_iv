@@ -8,8 +8,8 @@
 
 # --- 
 # Set directory 
-# machine <- 'ajpelu'
-machine <- 'ajpeluLap'
+machine <- 'ajpelu'
+# machine <- 'ajpeluLap'
 di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 # --- 
 
@@ -46,11 +46,11 @@ myfiles <- list.files(path_original_MODIS)
 
 
 
-asc_file <- read.csv(paste0(di, '/data_raw/modis/',misfiles[1]), header=FALSE, as.is=TRUE)
+# asc_file <- read.csv(paste0(di, '/data_raw/modis/',misfiles[1]), header=FALSE, as.is=TRUE)
 
-Band <- "250m_16_days_NDVI"
+# Band <- "250m_16_days_NDVI"
 
-i <- 1
+aux_data_out <- data.frame()
   
 for (i in 1:length(myfiles)){ 
   
@@ -89,32 +89,20 @@ for (i in 1:length(myfiles)){
     separate(row.id, c("row.id_dup", "mod_variable"), ".250m_16_days_", remove = FALSE) %>% 
     # Select variables of interest  
     select(iv_malla_modi_id, lat, long, mod_value, mod_variable, year_adq, jday_adq, date_adq) %>% 
+    unique() %>% 
     dcast(iv_malla_modi_id + lat + long + year_adq + jday_adq + date_adq ~ mod_variable, value.var='mod_value')
-    
-    dcast(eviperiod, iv_malla_modi_id + poblacion + lng + lat  ~ disturb, value.var = 'media_period')
-    
-    d
-    
-  dcast()
-    stocks <- data_frame(
-      time = as.Date('2009-01-01') + 0:9,
-      X = rnorm(10, 0, 1),
-      Y = rnorm(10, 0, 2),
-      Z = rnorm(10, 0, 4)
-    )
-    
-    gather(stocks, stock, price, -time)
-    stocks %>% gather(stock, price, -time)
-    
-    # get first observation for each Species in iris data -- base R
-    mini_iris <- iris[c(1, 51, 101), ]
-    # gather Sepal.Length, Sepal.Width, Petal.Length, Petal.Width
-    gather(mini_iris, key = flower_att, value = measurement,
-           Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)  
+  
+
+  aux_data_out <- rbind(aux_data_out, aux_file)
+} 
+ 
+ 
  
 
-  
-  
+ 
+ 
+ 
+ 
 
 
     # Por aqui pendejo !!!! 

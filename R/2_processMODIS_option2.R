@@ -89,6 +89,7 @@ for (i in 1:length(myfiles)){
     separate(row.id, c("row.id_dup", "mod_variable"), ".250m_16_days_", remove = FALSE) %>% 
     # Select variables of interest  
     select(iv_malla_modi_id, lat, long, mod_value, mod_variable, year_adq, jday_adq, date_adq) %>% 
+    # Remove a duplicate day 
     unique() %>% 
     dcast(iv_malla_modi_id + lat + long + year_adq + jday_adq + date_adq ~ mod_variable, value.var='mod_value')
   
@@ -97,16 +98,6 @@ for (i in 1:length(myfiles)){
 } 
  
  
- 
-
- 
- 
- 
- 
-
-
-    # Por aqui pendejo !!!! 
-    
 
 
   

@@ -23,30 +23,46 @@ library("lubridate")
 library("ggplot2")
 ```
 
+## Read data 
 ```{r, readData}
 #iv data
-iv_raw <- read.csv(file=paste0(di,"/data/iv_raw_2015.csv"), header=TRUE, sep=",")
+# iv_raw_old <- read.csv(file=paste0(di,"/data/iv_raw_2015.csv"), header=TRUE, sep=",")
+iv_raw <- read.csv(file=paste0(di,"/data/iv_raw.csv"), header=TRUE, sep=",")
+
 # spatial info
 iv_coord <- read.csv(file=paste0(di,"/data_raw/coord_qpyr.csv"), header=TRUE, sep=",")
+
+# Add data of population 
+iv <- iv_raw %>% 
+  rename(cdoy = composite_day_of_the_year) %>% 
+  inner_join(dplyr::select(iv_coord, iv_malla_modi_id, poblacion), 
+             by='iv_malla_modi_id')
+
 ```
+
+## Explore data
+
+* How many differents day of adquisition are there in the whole dataset (pixeles covering *Q. pyrenaica* forests)? 
+* Get number of images (ndvi, evi) per year. For each pixel we obtain the images per year. Then we compute the mean, min and max of this value (for all pixels), to see homogeneity between pixels. 
 
 ```{r}
 # How many differents day of adquisition are there in this dataset?
-iv_raw %>% 
-  ggplot(aes(composite_day_of_the_year)) + 
-  geom_histogram(binwidth = 1)
+iv %>% 
+  ggplot(aes(cdoy)) + 
+  geom_histogram(binwidth = 1) + 
+  theme_bw()
 
 # Get number of images per year by pixel 
-xx <- iv_raw %>% 
-  mutate(iv_malla_modi_id = id_pixel,
-         cdoy = composite_day_of_the_year) %>% 
-  group_by(iv_malla_modi_id, year) %>% 
-  summarise(imagen_year=n())
+images_year <- iv_raw %>% 
+  group_by(iv_malla_modi_id, year_adq) %>% 
+  summarise(imagen_year=n()) %>% 
+  select(-iv_malla_modi_id) %>% 
+  group_by(year_adq) %>% 
+  summarise(mean=mean(imagen_year),
+            min=min(imagen_year),
+            max=max(imagen_year))
 
-  
-  
-  filter(composite_day_of_the_year > 366) %>% 
-  nrow()
+images_year 
 ```
 
 
@@ -54,19 +70,31 @@ xx <- iv_raw %>%
 
 
 ```{r}
-iv <- iv_raw %>% 
-  mutate(iv_malla_modi_id = id_pixel,
-         cdoy = composite_day_of_the_year) %>% 
-  inner_join(iv_coord, by='iv_malla_modi_id') %>% 
-  select(iv_malla_modi_id, ndvi, evi, cdoy, date, lng, lat, poblacion)
+
 
 # Algorith to correct dates
 # Create dataframe with reference data
-refereceData <- as.data.frame(composite=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23),
-                              first_cdoy = c(1, 17, 33, 49, 65, 81, 97, 113,
+refereceData <- data.frame(comp_period=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23),
+                           first_cdoy = c(1, 17, 33, 49, 65, 81, 97, 113,
                                              129, 145, 161, 177, 193, 209, 225, 241, 257,
-                                             273, 289, 305, 321, 337, 353))
+                                             273, 289, 305, 321, 337, 353), 
+                              season = c('wi', 'wi', 'wi', 'wi', 'wi',
+                                         'sp', 'sp', 'sp', 'sp', 'sp', 'sp',
+                                         'su', 'su', 'su', 'su', 'su', 'su',
+                                         'au', 'au', 'au', 'au', 'au', 'au'))
+# Leap years 
+leap <- c('2004', '2008', '2012')
 
+#### !!!! VAS POR AQUI 
+
+# Corrected leap years (a-point in Testa et al.)
+iv_corrected <- iv %>% 
+  mutate(cdoy_c = ifelse(year_adq %in% leap, 
+                         ifelse(cdoy >= 60, cdoy -1, cdoy), cdoy), 
+         cp = cut(cdoy_c, breaks=c(refereceData$first_cdoy, 366), labels=refereceData$comp_period)) 
+
+
+#### !!!! VAS POR AQUI 
 
 write.csv(iv, file = paste0(di,'/data/iv_quercus_pyrenaica.csv'), row.names = FALSE)
 ```

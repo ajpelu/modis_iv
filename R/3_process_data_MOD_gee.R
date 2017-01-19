@@ -24,17 +24,24 @@ raw <- read.csv(paste0(di, '/data_raw/modis_gee/iv_qp_raw.csv'), header=TRUE)
 
 # --- 
 # Prepare Data 
-# /1/ Get date of the image (from hdf title, system.index)
+# 1 # Date 
+# * Get date of the image (from hdf title, system.index). 
+# * Store as date (date format) and create new variable for year 
+# 2 # Coordinates
+# * Get lat and long from '.geo' variable 
+# * Store as numeric 
+# 3 # Select and rename variables of interest 
 
 rawdata <- raw %>% 
   mutate(
-    # Get date 
+    # Date
     aux_date = stringr::str_replace(system.index, 
                                          pattern = "MOD13Q1_005_", 
                                          ""),
-    # Store as date 
     date = as.Date(substr(aux_date,1,10), format = "%Y_%m_%d"),
-    # Get gee index 
+    year = lubridate::year(date), 
+    
+    # GEE index
     gee_index = as.numeric(
       stringr::str_replace(
         substr(aux_date,11, nchar(aux_date)), pattern = '_', "")),
@@ -45,10 +52,10 @@ rawdata <- raw %>%
     latitude = as.numeric(
       stringr::str_replace(
         stringr::str_replace(aux_geo, pattern = "..*\\,", ""), 
-        pattern = "\\]..*", ""))) %>% 
+        pattern = "\\]..*", ""))) %>%
+  # Select 
   dplyr::select(doy = DayOfYear, evi = EVI, ndvi = NDVI, summQA = SummaryQA, iv_malla_modi_id,
-                pop = poblacion, date, gee_index, long = longitude, lat = latitude) %>% 
-  mutate(year = lubridate::year(date))
+                pop = poblacion, date, gee_index, long = longitude, lat = latitude)
 
 
 

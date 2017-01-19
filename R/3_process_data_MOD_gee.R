@@ -22,10 +22,13 @@ library(lubridate)
 # Read data 
 raw <- read.csv(paste0(di, '/data_raw/modis_gee/iv_qp_raw.csv'), header=TRUE) 
 
-# Change variable names 
+# --- 
+# Prepare Data 
+# /1/ Get date of the image (from hdf title, system.index)
 
-raw <- raw %>% 
-  mutate(# Get date 
+rawdata <- raw %>% 
+  mutate(
+    # Get date 
     aux_date = stringr::str_replace(system.index, 
                                          pattern = "MOD13Q1_005_", 
                                          ""),
@@ -34,7 +37,18 @@ raw <- raw %>%
     # Get gee index 
     gee_index = as.numeric(
       stringr::str_replace(
-        substr(aux_date,11, nchar(aux_date)), pattern = '_', "")))
+        substr(aux_date,11, nchar(aux_date)), pattern = '_', "")),
+    
+    # Lat/Long
+    aux_geo = stringr::str_replace(.geo, pattern = "..*\\[", ""),
+    longitude = as.numeric(stringr::str_replace(aux_geo, pattern = "\\,..*", "")),
+    latitude = as.numeric(
+      stringr::str_replace(
+        stringr::str_replace(aux_geo, pattern = "..*\\,", ""), 
+        pattern = "\\]..*", ""))) %>% 
+  dplyr::select(doy = DayOfYear, evi = EVI, ndvi = NDVI, summQA = SummaryQA, iv_malla_modi_id,
+                pop = poblacion, date, gee_index, long = longitude, lat = latitude) %>% 
+  mutate(year = lubridate::year(date))
 
 
 
@@ -43,38 +57,30 @@ raw <- raw %>%
 
 
 
-test <- 'MOD13Q1_005_2000_02_18_1812'         
-         
-aux_date <- stringr::str_replace(test, pattern = "MOD13Q1_005_", "")
-         
-test_2 <- stringr::str_split(test_1, pattern = '_')[[1]][1]
+
+
+
+aux_geo <- stringr::str_replace(geo, pattern = "..*\\[", "")
+aux_latlong <- stringr::str_replace(aux_geo, pattern = "\\]..*", "")
+longitude <- as.numeric(stringr::str_split(aux_latlong, pattern =",")[[1]][1])
+latitude <- as.numeric(stringr::str_split(aux_latlong, pattern =",")[[1]][2])
 
 
 
 
 
-## read in date/time info in format 'm/d/y'
-dates <- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
-as.Date(dates, "%m/%d/%y")
+
+
+str_replace(miname, pattern = "\\Samp..*", "")
+
+
+
+
+
+
 
        
-       
-       
-       year = stringr::str_split(aux_date, pattern = '_')[[1]][1], # year
-       year = stringr::str_split(aux_date, pattern = '_')[[1]][2], # month 
-       year = stringr::str_split(aux_date, pattern = '_')[[1]][3], # day
-       year = as.numeric(stringr::str_split(aux_date, pattern = '_')[[1]][4]), # gee index? 
 
-
-xx <- 
-       
-         
-         
-         
-         ## read in date/time info in format 'm/d/y'
-         dates <- c("02/27/92", "02/27/92", "01/14/92", "02/28/92", "02/01/92")
-       as.Date(dates, "%m/%d/%y")
-         
          
          
          

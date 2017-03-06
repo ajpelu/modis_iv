@@ -7,7 +7,8 @@
 
 # --- 
 # Set directory 
-machine <- 'ajpeluLap'
+# machine <- 'ajpeluLap'
+machine <- 'ajpelu'
 di <- paste('/Users/', machine, '/Dropbox/phd/phd_repos/modis_iv', sep='')
 # --- 
 
@@ -37,8 +38,8 @@ rawdata <- raw %>%
   mutate(
     # Date
     aux_date = stringr::str_replace(system.index, 
-                                         pattern = "MOD13Q1_005_", 
-                                         ""),
+                                    pattern = "MOD13Q1_005_", 
+                                    ""),
     date = as.Date(substr(aux_date,1,10), format = "%Y_%m_%d"),
     year = lubridate::year(date), 
     
@@ -49,6 +50,15 @@ rawdata <- raw %>%
     
     # Detailed QA 
     qabit = paste(as.binary(DetailedQA, n=16), collapse=""),
+    qa_quality = str_sub(qabit, 1, 2),
+    qa_usefulness = str_sub(qabit, 3, 6),
+    qa_aerosol = str_sub(qabit, 7, 8),
+    qa_adj_cloud = str_sub(qabit, 9, 9),
+    qa_atmos = str_sub(qabit, 10, 10),
+    qa_mix_cloud = str_sub(qabit, 11, 11),
+    qa_landwater = str_sub(qabit, 12, 14),
+    qa_snow = str_sub(qabit, 15, 15),
+    qa_shadow = str_sub(qabit, 16, 16),
     
     # Lat/Long
     aux_geo = stringr::str_replace(.geo, pattern = "..*\\[", ""),
@@ -58,8 +68,15 @@ rawdata <- raw %>%
         stringr::str_replace(aux_geo, pattern = "..*\\,", ""), 
         pattern = "\\]..*", ""))) %>%
   # Select 
-  dplyr::select(doy = DayOfYear, evi = EVI, ndvi = NDVI, summQA = SummaryQA, qabit, iv_malla_modi_id,
-                pop = poblacion, date, year, gee_index, long = longitude, lat = latitude)
+  dplyr::select(doy = DayOfYear, evi = EVI, ndvi = NDVI, summQA = SummaryQA, iv_malla_modi_id,
+                pop = poblacion, date, year, gee_index, long = longitude, lat = latitude,
+                qa_quality, qa_usefulness, qa_aerosol, qa_adj_cloud, 
+                qa_atmos, qa_mix_cloud, qa_landwater, qa_snow, qa_shadow)
+
+
+
+
+
 
 # --- 
 # How many images per year 
@@ -69,19 +86,14 @@ n_images_pixel <- rawdata %>%
             bypixel = total / length(unique(iv_malla_modi_id)))
 # ---
 
-# Crear variables con str_sub(hw, 1, 6) str_sub(x, star, end )
-qa_vi_quality = 
-  qa_vi_usefulness = 
-  qa_aerosol =
-  qa_adjacent_cloud = 
-  qa_atmos =
-  qa_mixed_cloud =
-  qa_landwater = 
-  qa_snow 
-qa_shadow
-
 # ---
 # Export evi dataframe
 write.csv(rawdata, file=paste(di, "/data/iv_raw_2016.csv", sep=""), row.names = FALSE)
 # ---
 
+
+
+
+qabit = paste(as.binary(2116, n=16), collapse="")
+
+qa_quality = str_sub(qabit, 1, 2)

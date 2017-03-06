@@ -34,6 +34,10 @@ raw <- read.csv(paste0(di, '/data_raw/modis_gee/iv_qp_raw.csv'), header=TRUE)
 # * Store as numeric 
 # 3 # Select and rename variables of interest 
 
+decodeQA <- function(x){
+  bit <- intToBits(x)
+  paste(tail(rev(as.integer(bit)), 16), collapse="")}
+
 rawdata <- raw %>% 
   mutate(
     # Date
@@ -49,16 +53,18 @@ rawdata <- raw %>%
         substr(aux_date,11, nchar(aux_date)), pattern = '_', "")),
     
     # Detailed QA 
-    qabit = paste(as.binary(DetailedQA, n=16), collapse=""),
-    qa_quality = str_sub(qabit, 1, 2),
-    qa_usefulness = str_sub(qabit, 3, 6),
-    qa_aerosol = str_sub(qabit, 7, 8),
-    qa_adj_cloud = str_sub(qabit, 9, 9),
-    qa_atmos = str_sub(qabit, 10, 10),
-    qa_mix_cloud = str_sub(qabit, 11, 11),
-    qa_landwater = str_sub(qabit, 12, 14),
-    qa_snow = str_sub(qabit, 15, 15),
-    qa_shadow = str_sub(qabit, 16, 16),
+    qabit = decodeQA(DetailedQA),
+    qa_quality = substr(qabit, 15, 16), 
+    qa_usefulness = substr(qabit, 11, 14), 
+    # qa_quality = str_sub(qabit, 1, 2),
+    # qa_usefulness = str_sub(qabit, 3, 6),
+    # qa_aerosol = str_sub(qabit, 7, 8),
+    # qa_adj_cloud = str_sub(qabit, 9, 9),
+    # qa_atmos = str_sub(qabit, 10, 10),
+    # qa_mix_cloud = str_sub(qabit, 11, 11),
+    # qa_landwater = str_sub(qabit, 12, 14),
+    # qa_snow = str_sub(qabit, 15, 15),
+    # qa_shadow = str_sub(qabit, 16, 16),
     
     # Lat/Long
     aux_geo = stringr::str_replace(.geo, pattern = "..*\\[", ""),
@@ -70,8 +76,9 @@ rawdata <- raw %>%
   # Select 
   dplyr::select(doy = DayOfYear, evi = EVI, ndvi = NDVI, summQA = SummaryQA, iv_malla_modi_id,
                 pop = poblacion, date, year, gee_index, long = longitude, lat = latitude,
-                qa_quality, qa_usefulness, qa_aerosol, qa_adj_cloud, 
-                qa_atmos, qa_mix_cloud, qa_landwater, qa_snow, qa_shadow)
+                qa_quality, qa_usefulness) 
+                # qa_aerosol, qa_adj_cloud, 
+                # qa_atmos, qa_mix_cloud, qa_landwater, qa_snow, qa_shadow)
 
 
 

@@ -681,3 +681,33 @@ modis.hdf <- getHdf(product= product,
 a <- getHdf(HdfName = 'MOD13Q1.A2002001.h17v05.006.2015146145610.hdf')
 
 
+
+
+
+
+library('raster')
+library('dplyr')
+library('sp')
+
+
+# Read Geotiff tile h17 v5 (epsg4326)
+r <- raster(paste0(getwd(), '/data_raw/modis_hdf_rep/wgs84_gc/MOD13Q1.MRTWEB.A2017049.005.250m_16_days_EVI.tif'))
+
+r_utm <- projectRaster(r, crs=CRS("+init=epsg:23030"))
+
+
+# Convert into points 
+rp <- rasterToPoints(r)
+
+
+rpdf <- as.data.frame(rp)
+rpdf <- rpdf[,-3]
+names(rpdf) <- c('lng','lat')
+
+coo <- read.csv(file=paste0(getwd(), '/data_raw/coord_qpyr.csv'), header=TRUE)
+
+
+
+
+
+

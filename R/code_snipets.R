@@ -640,3 +640,44 @@ modis.hdf <- getHdf(product= product,
                     checkIntegrity = TRUE)
 
 
+
+# install.packages('MODIS', repos= 'http://R-forge.R-project.org')
+library('MODIS')
+# library('rgdal')
+
+#### Specify the options for MODIS package: 
+# Paths where downloaded files are stored: 
+# `localArcPath`: `./data_raw/geoinfo/hdf` 
+# `outDirPath`: `/Users/ajpelu/iv_modis` 
+
+
+# path_descarga <- paste0(getwd(), '/data_raw/geoinfo/')
+# MODISoptions(localArcPath = path_descarga,
+#             outDirPath = path_descarga)
+
+
+## MODIS product options and paths
+viname <- "ndvi"
+product <- "MOD13Q1"
+ofilename <- paste0(product, "_", viname, "_brick.grd")
+
+
+# Get tile info 
+tileH <- 17
+tileV <- 5
+
+# Filter by date 
+begin <- "2015.01.01"
+end <- "2002.01.17"
+
+
+modis.hdf <- getHdf(product= product,
+                    begin = begin,
+                    end = end,
+                    tileH = tileH,
+                    tileV = tileV,
+                    checkIntegrity = TRUE)
+
+a <- getHdf(HdfName = 'MOD13Q1.A2002001.h17v05.006.2015146145610.hdf')
+
+

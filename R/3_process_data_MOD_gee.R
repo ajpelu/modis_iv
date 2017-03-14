@@ -38,6 +38,10 @@ decodeQA <- function(x){
   bit <- intToBits(x)
   paste(tail(rev(as.integer(bit)), 16), collapse="")}
 
+decodeQAv <- Vectorize(decodeQA)
+
+
+
 rawdata <- raw %>% 
   mutate(
     # Date
@@ -53,18 +57,16 @@ rawdata <- raw %>%
         substr(aux_date,11, nchar(aux_date)), pattern = '_', "")),
     
     # Detailed QA 
-    qabit = decodeQA(DetailedQA),
-    qa_quality = substr(qabit, 15, 16), 
-    qa_usefulness = substr(qabit, 11, 14), 
-    # qa_quality = str_sub(qabit, 1, 2),
-    # qa_usefulness = str_sub(qabit, 3, 6),
-    # qa_aerosol = str_sub(qabit, 7, 8),
-    # qa_adj_cloud = str_sub(qabit, 9, 9),
-    # qa_atmos = str_sub(qabit, 10, 10),
-    # qa_mix_cloud = str_sub(qabit, 11, 11),
-    # qa_landwater = str_sub(qabit, 12, 14),
-    # qa_snow = str_sub(qabit, 15, 15),
-    # qa_shadow = str_sub(qabit, 16, 16),
+    bit = decodeQAv(DetailedQA),
+    qa_quality = substr(bit, 15, 16), 
+    qa_usefulness = substr(bit, 11, 14), 
+    qa_aerosol = substr(bit, 9, 10),
+    qa_adj_cloud = substr(bit, 8, 8),
+    qa_atmos = substr(bit, 7, 7),
+    qa_mix_cloud = substr(bit, 6, 6),
+    qa_landwater = substr(bit, 3, 5),
+    qa_snow = substr(bit, 2, 2),
+    qa_shadow = substr(bit, 1, 1),
     
     # Lat/Long
     aux_geo = stringr::str_replace(.geo, pattern = "..*\\[", ""),
@@ -75,12 +77,13 @@ rawdata <- raw %>%
         pattern = "\\]..*", ""))) %>%
   # Select 
   dplyr::select(doy = DayOfYear, evi = EVI, ndvi = NDVI, summQA = SummaryQA, iv_malla_modi_id,
-                pop = poblacion, date, year, gee_index, long = longitude, lat = latitude,
-                qa_quality, qa_usefulness) 
-                # qa_aerosol, qa_adj_cloud, 
-                # qa_atmos, qa_mix_cloud, qa_landwater, qa_snow, qa_shadow)
+                pop = poblacion, date, year, gee_index, long = longitude, lat = latitude, bit,
+                qa_quality, qa_usefulness, 
+                qa_aerosol, qa_adj_cloud, 
+                qa_atmos, qa_mix_cloud, qa_landwater, qa_snow, qa_shadow)
 
 
+rr <- rawdata %>% filter(summQA == 1)
 
 
 
